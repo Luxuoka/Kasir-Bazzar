@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kasir Bazaar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+  <style>
+    :root {
+      --bg: #f4f3ef;
+      --bg-subtle: #eae9e4;
+      --card: #ffffff;
+      --card-hover: #fafaf8;
+      --tx: #1a1a18;
+      --tx-secondary: #6b6a63;
+      --bd: #dedcd3;
+      --ac: #0f6b57;
+      --ac-hover: #0d5a49;
+      --ac-light: rgba(15, 107, 87, 0.08);
+      --act: #ffffff;
+      --dg: #b3261e;
+      --dg-light: rgba(179, 38, 30, 0.08);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      color-scheme: light;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #141412;
+        --bg-subtle: #1e1e1c;
+        --card: #222220;
+        --card-hover: #2a2a27;
+        --tx: #f0efe8;
+        --tx-secondary: #a3a198;
+        --bd: #3a3935;
+        --ac: #3fb89c;
+        --ac-hover: #4fcaab;
+        --ac-light: rgba(63, 184, 156, 0.1);
+        --act: #07201a;
+        --dg: #f2796f;
+        --dg-light: rgba(242, 121, 111, 0.1);
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+        --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+        color-scheme: dark;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #141412;
+      --bg-subtle: #1e1e1c;
+      --card: #222220;
+      --card-hover: #2a2a27;
+      --tx: #f0efe8;
+      --tx-secondary: #a3a198;
+      --bd: #3a3935;
+      --ac: #3fb89c;
+      --ac-hover: #4fcaab;
+      --ac-light: rgba(63, 184, 156, 0.1);
+      --act: #07201a;
+      --dg: #f2796f;
+      --dg-light: rgba(242, 121, 111, 0.1);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--tx);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+      border-bottom: 1px solid var(--bd);
+      background: var(--card);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 0.25rem;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+    }
+
+    nav button {
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--tx-secondary);
+      transition: all var(--transition);
+    }
+
+    nav button:hover {
+      color: var(--tx);
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    nav button.on {
+      background: var(--card);
+      color: var(--tx);
+      box-shadow: var(--shadow-sm);
+    }
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+      color: inherit;
+    }
+
+    button {
+      border: 1px solid var(--bd);
+      background: var(--card);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.85rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all var(--transition);
+    }
+
+    button:hover {
+      background: var(--card-hover);
+      box-shadow: var(--shadow-sm);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    button.on,
+    button.pri {
+      background: var(--ac);
+      color: var(--act);
+      border-color: var(--ac);
+    }
+
+    button.on:hover,
+    button.pri:hover {
+      background: var(--ac-hover);
+      border-color: var(--ac-hover);
+    }
+
+    button.dg-btn {
+      background: var(--dg-light);
+      color: var(--dg);
+      border-color: var(--dg);
+    }
+
+    button.dg-btn:hover {
+      background: var(--dg);
+      color: #fff;
+    }
+
+    input,
+    select {
+      border: 1px solid var(--bd);
+      background: var(--card);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.65rem;
+      width: 100%;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--ac);
+      box-shadow: 0 0 0 3px var(--ac-light);
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--tx-secondary);
+      margin: 0.6rem 0 0.2rem;
+    }
+
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .cols {
+      display: grid;
+      gap: 1rem;
+    }
+
+    @media (min-width: 820px) {
+      .cols {
+        grid-template-columns: 1.4fr 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--bd);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--transition);
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .mu {
+      color: var(--tx-secondary);
+    }
+
+    .dg {
+      color: var(--dg);
+    }
+
+    .chips {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .chips button {
+      font-size: 0.82rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .p {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      text-align: left;
+      min-height: 76px;
+      padding: 0.6rem 0.75rem;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition);
+    }
+
+    .p:hover {
+      background: var(--ac-light);
+      border-color: var(--ac);
+    }
+
+    .p span {
+      color: var(--tx-secondary);
+      font-size: 0.82rem;
+    }
+
+    .p .badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--ac);
+      color: var(--act);
+      border-radius: 99px;
+      min-width: 22px;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 1px 6px;
+      line-height: 1.4;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 0.6rem;
+      align-items: center;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .qty-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .qty-ctrl button {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 1rem;
+    }
+
+    .tot-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0.8rem 0;
+      padding-top: 0.5rem;
+      border-top: 2px solid var(--bd);
+    }
+
+    .btns {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .btns button {
+      flex: 1;
+    }
+
+    .add-form {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .add-form {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .product-row {
+      display: grid;
+      grid-template-columns: 1fr auto 110px auto;
+      gap: 0.5rem;
+      margin: 0.4rem 0;
+      align-items: center;
+    }
+
+    .report-btns {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .sums {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .sum-card {
+      background: var(--bg-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 0.8rem;
+    }
+
+    .sum-card span {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--tx-secondary);
+      margin-bottom: 0.15rem;
+    }
+
+    .sum-card b {
+      font-size: 1.1rem;
+    }
+
+    .sum-card small {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--tx-secondary);
+      margin-top: 0.1rem;
+    }
+
+    .hist-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 0.6rem;
+      align-items: center;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--bd);
+    }
+
+    .hist-item:last-child {
+      border-bottom: none;
+    }
+
+    .qr-preview {
+      display: block;
+      max-width: 240px;
+      width: 100%;
+      margin: 0.6rem auto;
+      border-radius: var(--radius-sm);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 20;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .sheet {
+      background: var(--card);
+      width: 100%;
+      max-width: 440px;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 1.25rem;
+      padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+      max-height: 92vh;
+      overflow: auto;
+      animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .seg {
+      display: flex;
+      gap: 0.35rem;
+      margin: 0.6rem 0;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+    }
+
+    .seg button {
+      flex: 1;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      color: var(--tx-secondary);
+    }
+
+    .seg button.on {
+      background: var(--ac);
+      color: var(--act);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .quick-amounts {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      margin: 0.5rem 0;
+    }
+
+    .quick-amounts button {
+      font-size: 0.85rem;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%) translateY(0);
+      bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+      background: var(--tx);
+      color: var(--bg);
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      z-index: 30;
+      max-width: 90%;
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      animation: toastIn 0.3s ease;
+    }
+
+    @keyframes toastIn {
+      from {
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+      }
+    }
+
+    .fade-enter-active,
+    .fade-leave-active {
+      transition: opacity 0.2s;
+    }
+
+    .fade-enter-from,
+    .fade-leave-to {
+      opacity: 0;
+    }
+
+    .wide {
+      overflow-x: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <header>
+      <div class="logo">Kasir Bazaar</div>
+      <nav>
+        <button v-for="tab in tabs" :key="tab.id" :class="{ on: activeTab === tab.id }" @click="activeTab = tab.id">{{
+          tab.label }}</button>
+      </nav>
+    </header>
+
+    <main>
+      <section v-show="activeTab === 'k'">
+        <div class="cols">
+          <div class="card">
+            <div class="chips">
+              <button v-for="cat in categories" :key="cat.value" :class="{ on: filterCat === cat.value }"
+                @click="filterCat = cat.value">{{ cat.label }}</button>
+            </div>
+
+            <div class="grid" v-if="filteredProducts.length">
+              <button class="p" v-for="p in filteredProducts" :key="p.id" @click="addToCart(p.id)">
+                <b>{{ p.name }}</b>
+                <span>{{ p.price ? formatRp(p.price) : '⚠ atur harga' }}</span>
+                <i class="badge" v-if="cart[p.id]">{{ cart[p.id] }}</i>
+              </button>
+            </div>
+            <p class="mu" v-else>Belum ada produk. Tambahkan di tab Produk.</p>
+          </div>
+
+          <div class="card">
+            <h2>Pesanan</h2>
+
+            <template v-if="cartItems.length">
+              <div class="cart-item" v-for="item in cartItems" :key="item.id">
+                <div>
+                  <b>{{ item.name }}</b><br>
+                  <span class="mu">{{ formatRp(item.price) }}</span>
+                </div>
+                <div class="qty-ctrl">
+                  <button @click="decFromCart(item.id)">−</button>
+                  <span>{{ item.qty }}</span>
+                  <button @click="addToCart(item.id)">+</button>
+                </div>
+                <b>{{ formatRp(item.price * item.qty) }}</b>
+              </div>
+            </template>
+            <p class="mu" v-else>Keranjang kosong</p>
+
+            <div class="tot-row">
+              <span>Total</span>
+              <b>{{ formatRp(cartTotal) }}</b>
+            </div>
+
+            <div class="btns">
+              <button @click="clearCart">Kosongkan</button>
+              <button class="pri" :disabled="!cartItems.length" @click="openPayment">Bayar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-show="activeTab === 'p'">
+        <div class="card">
+          <h2>Tambah produk</h2>
+          <div class="add-form">
+            <input v-model="newProduct.name" placeholder="Nama produk">
+            <select v-model="newProduct.cat">
+              <option>Makanan</option>
+              <option>Minuman</option>
+            </select>
+            <input v-model.number="newProduct.price" type="number" inputmode="numeric" min="0" placeholder="Harga (Rp)">
+            <button class="pri" @click="addProduct">Tambah</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Daftar produk</h2>
+          <p class="mu" style="margin-bottom:0.5rem">
+            Nama dan harga bisa diubah langsung. Harga lama pada transaksi yang sudah tercatat tidak ikut berubah.
+          </p>
+
+          <template v-if="state.products.length">
+            <div class="product-row" v-for="p in state.products" :key="p.id">
+              <input :value="p.name" @change="updateProductField(p.id, 'name', $event.target.value)">
+              <span class="mu">{{ p.cat }}</span>
+              <input :value="p.price" type="number" inputmode="numeric"
+                @change="updateProductField(p.id, 'price', $event.target.value)">
+              <button :class="{ 'dg-btn': armedAction === 'p' + p.id }" @click="deleteProduct(p.id)">{{ armedAction ===
+                'p' + p.id ? 'Yakin?' : 'Hapus' }}</button>
+            </div>
+          </template>
+          <p class="mu" v-else>Belum ada produk.</p>
+        </div>
+      </section>
+
+      <section v-show="activeTab === 'l'">
+        <div class="card">
+          <h2>Laporan harian</h2>
+          <div class="report-btns">
+            <input type="date" v-model="reportDate">
+            <button class="pri" @click="exportExcel">⬇ Unduh Excel (.xlsx)</button>
+          </div>
+
+          <div class="sums">
+            <div class="sum-card">
+              <span>Total</span>
+              <b>{{ formatRp(reportSummary.total) }}</b>
+              <small>{{ reportSummary.count }} transaksi</small>
+            </div>
+            <div class="sum-card" v-for="m in ['CASH', 'QRIS', 'KUPON']" :key="m">
+              <span>{{ m }}</span>
+              <b>{{ formatRp(reportSummary.byMethod[m]?.total || 0) }}</b>
+              <small>{{ reportSummary.byMethod[m]?.count || 0 }} transaksi</small>
+            </div>
+          </div>
+
+          <template v-if="daySalesData.length">
+            <div class="hist-item" v-for="s in daySalesReversed" :key="s.id">
+              <div>
+                <b>TRX-{{ pad(s.no) }}</b> · {{ formatTime(s.ts) }} · {{ s.method }}<br>
+                <span class="mu">{{ s.items.map(i => i.name + ' ×' + i.qty).join(', ') }}</span>
+              </div>
+              <b>{{ formatRp(s.total) }}</b>
+              <button :class="{ 'dg-btn': armedAction === 'v' + s.id }" @click="voidSale(s.id)">{{ armedAction === 'v' +
+                s.id ? 'Yakin?' : 'Batalkan' }}</button>
+            </div>
+          </template>
+          <p class="mu" v-else>Belum ada transaksi pada tanggal ini.</p>
+        </div>
+
+        <div class="card">
+          <h2>Pengaturan</h2>
+          <label>Kelas (tampil di header Excel)</label>
+          <input :value="state.set.kelas" @change="updateSetting('kelas', $event.target.value.trim() || 'XI-3')">
+
+          <label>Nilai 1 kupon (Rp)</label>
+          <input :value="state.set.kupon" type="number" inputmode="numeric" min="1"
+            @change="updateKupon($event.target.value)">
+
+          <label>Gambar QRIS (ditampilkan ke pembeli saat bayar QRIS)</label>
+          <input type="file" accept="image/*" @change="handleQrisUpload">
+          <img v-if="state.set.qris" :src="state.set.qris" class="qr-preview" alt="QRIS">
+
+          <p class="mu" style="margin-top:0.75rem">
+            Data tersimpan di browser perangkat ini. Pakai satu perangkat sebagai kasir, dan unduh Excel setiap hari.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <teleport to="body">
+      <div class="overlay" v-if="showPayModal" @click.self="showPayModal = false">
+        <div class="sheet">
+          <h2>Bayar {{ formatRp(cartTotal) }}</h2>
+          <div class="seg">
+            <button v-for="m in ['CASH', 'QRIS', 'KUPON']" :key="m" :class="{ on: payMethod === m }"
+              @click="payMethod = m">{{ m }}</button>
+          </div>
+
+          <template v-if="payMethod === 'CASH'">
+            <label>Uang diterima</label>
+            <input v-model.number="cashReceived" type="number" inputmode="numeric" min="0">
+            <div class="quick-amounts">
+              <button v-for="v in quickAmounts" :key="v" @click="cashReceived = v">
+                {{ formatRp(v) }}
+              </button>
+            </div>
+            <p>Kembalian: <b>{{ formatRp(Math.max(0, (cashReceived || 0) - cartTotal)) }}</b></p>
+          </template>
+
+          <template v-if="payMethod === 'QRIS'">
+            <img v-if="state.set.qris" :src="state.set.qris" class="qr-preview" alt="QRIS">
+            <p v-else class="mu">Gambar QRIS belum diunggah (tab Laporan → Pengaturan). Konfirmasi tetap bisa dilakukan
+              manual.</p>
+            <p class="mu">Konfirmasi hanya setelah notifikasi pembayaran masuk.</p>
+          </template>
+
+          <template v-if="payMethod === 'KUPON'">
+            <label>Jumlah kupon (@{{ formatRp(state.set.kupon) }})</label>
+            <input v-model.number="kuponCount" type="number" inputmode="numeric" min="1">
+            <p>{{ kuponInfo }}</p>
+          </template>
+
+          <div class="btns">
+            <button @click="showPayModal = false">Batal</button>
+            <button class="pri" :disabled="!canConfirmPayment" @click="confirmPayment">Konfirmasi</button>
+          </div>
+        </div>
+      </div>
+    </teleport>
+
+    <teleport to="body">
+      <div class="toast" v-if="toastMsg">{{ toastMsg }}</div>
+    </teleport>
+  </div>
+
+  <script>
+    const SPEC = { "order": ["Dana", "Copy of Dana", "Barang", "Pengg_Dana", "Copy of Pengg_Dana"], "sheets": { "Dana": { "w": { "1": 5.29, "2": 16.14, "3": 19.29, "4": 13.86, "5": 5.14, "6": 8.43, "7": 19.14 }, "h": { "3": 25.5, "4": 24.75, "5": 24.75, "6": 24.75, "7": 24.75, "8": 24.75, "9": 24.75, "10": 24.75, "11": 24.75, "12": 24.75, "13": 24.75, "14": 24.75, "15": 24.75, "16": 24.75, "17": 24.75, "18": 24.75, "19": 24.75, "20": 24.75, "21": 24.75, "22": 24.75, "23": 24.75, "24": 24.75, "25": 15.75, "26": 15.75, "27": 15.75, "28": 15.75, "29": 15.75, "30": 15.75, "31": 15.75, "32": 15.75, "33": 15.75, "34": 15.75, "35": 15.75, "36": 15.75, "37": 15.75 }, "m": ["F30:G30", "C31:E31", "C36:D36", "F31:G31", "C35:E35", "F27:G27", "C32:E32"], "c": [[1, 1, "Sumber Dana", 0], [1, 6, "Kelas : ", 0], [1, 7, "XI-3", 0], [3, 1, "No.", 1], [3, 2, "Hari, tanggal", 1], [3, 3, "Sumber", 2], [3, 4, null, 3], [3, 5, null, 3], [3, 6, null, 4], [3, 7, "Jumlah", 5], [4, 1, 1, 6], [4, 2, null, 6], [4, 3, "Albert", 7], [4, 4, null, 3], [4, 5, null, 3], [4, 6, null, 4], [4, 7, null, 8], [5, 1, 2, 9], [5, 2, null, 9], [5, 3, "Arland", 7], [5, 4, null, 3], [5, 5, null, 3], [5, 6, null, 4], [5, 7, null, 8], [6, 1, 3, 9], [6, 2, null, 9], [6, 3, "Aurel", 7], [6, 4, null, 3], [6, 5, null, 3], [6, 6, null, 4], [6, 7, null, 8], [7, 1, 4, 9], [7, 2, null, 9], [7, 3, "Bryan", 7], [7, 4, null, 3], [7, 5, null, 3], [7, 6, null, 4], [7, 7, null, 8], [8, 1, 5, 9], [8, 2, null, 9], [8, 3, "Caesario", 7], [8, 4, null, 3], [8, 5, null, 3], [8, 6, null, 4], [8, 7, null, 8], [9, 1, 6, 9], [9, 2, null, 9], [9, 3, "Ferdinand", 7], [9, 4, null, 3], [9, 5, null, 3], [9, 6, null, 4], [9, 7, null, 8], [10, 1, 7, 9], [10, 2, null, 9], [10, 3, "Kresna", 7], [10, 4, null, 3], [10, 5, null, 3], [10, 6, null, 4], [10, 7, null, 8], [11, 1, 8, 9], [11, 2, null, 9], [11, 3, "Elita", 7], [11, 4, null, 3], [11, 5, null, 3], [11, 6, null, 4], [11, 7, null, 8], [12, 1, 9, 9], [12, 2, null, 9], [12, 3, "Gracesia", 7], [12, 4, null, 3], [12, 5, null, 3], [12, 6, null, 4], [12, 7, null, 8], [13, 1, 10, 9], [13, 2, null, 9], [13, 3, "Jennifer", 7], [13, 4, null, 3], [13, 5, null, 3], [13, 6, null, 4], [13, 7, null, 8], [14, 1, 11, 9], [14, 2, null, 9], [14, 3, "Jeremiah", 7], [14, 4, null, 3], [14, 5, null, 3], [14, 6, null, 4], [14, 7, null, 8], [15, 1, 12, 9], [15, 2, null, 9], [15, 3, "Jeremy", 7], [15, 4, null, 3], [15, 5, null, 3], [15, 6, null, 4], [15, 7, null, 8], [16, 1, 13, 9], [16, 2, null, 9], [16, 3, "Jessica Ira", 7], [16, 4, null, 3], [16, 5, null, 3], [16, 6, null, 4], [16, 7, null, 8], [17, 1, 14, 9], [17, 2, null, 9], [17, 3, "Johsua Liem", 7], [17, 4, null, 3], [17, 5, null, 3], [17, 6, null, 4], [17, 7, null, 8], [18, 1, 15, 9], [18, 2, null, 9], [18, 3, "Gebby", 7], [18, 4, null, 3], [18, 5, null, 3], [18, 6, null, 4], [18, 7, null, 8], [19, 1, 16, 9], [19, 2, null, 9], [19, 3, "Leon", 7], [19, 4, null, 3], [19, 5, null, 3], [19, 6, null, 4], [19, 7, null, 8], [20, 1, 17, 9], [20, 2, null, 9], [20, 3, "Nael", 7], [20, 4, null, 3], [20, 5, null, 3], [20, 6, null, 4], [20, 7, null, 8], [21, 1, 18, 9], [21, 2, null, 9], [21, 3, "Manoppo", 7], [21, 4, null, 3], [21, 5, null, 3], [21, 6, null, 4], [21, 7, null, 8], [22, 1, 19, 9], [22, 2, null, 9], [22, 3, "Michael", 7], [22, 4, null, 3], [22, 5, null, 3], [22, 6, null, 4], [22, 7, null, 8], [23, 1, 20, 9], [23, 2, null, 9], [23, 3, "Joey", 7], [23, 4, null, 3], [23, 5, null, 3], [23, 6, null, 4], [23, 7, null, 8], [24, 1, 21, 9], [24, 2, null, 9], [24, 3, "Cikal", 7], [24, 4, null, 3], [24, 5, null, 3], [24, 6, null, 4], [24, 7, null, 8], [26, 6, "Bandung, _____________ 2025", 0], [27, 2, "Ketua Kelas,", 0], [27, 6, "Bendahara Kelas,", 10], [30, 2, "_________________", 0], [30, 6, "________________", 10], [31, 2, "     Michael Joey S.", 10], [31, 3, "Mengetahui", 10], [31, 6, "Venia Odelia M.", 10], [32, 3, "Wali Kelas,", 10], [35, 3, "___________________", 10], [36, 3, "           Nicolas Dwiatmoko, S.T", 10]], "n": [], "p": { "o": "portrait", "z": 9, "sc": null, "fw": null, "fh": null, "fit": false, "mg": [0.82, 0.46, 0.75, 0.75, 0.0, 0.0] }, "g": false }, "Copy of Dana": { "w": { "1": 5.29, "2": 16.14, "3": 19.29, "4": 13.86, "5": 5.14, "6": 8.43, "7": 19.14 }, "h": { "3": 25.5, "4": 24.75, "5": 24.75, "6": 24.75, "7": 24.75, "8": 24.75, "9": 24.75, "10": 24.75, "11": 24.75, "12": 24.75, "13": 24.75, "14": 24.75, "15": 24.75, "16": 24.75, "17": 24.75, "18": 24.75, "19": 24.75, "20": 24.75, "21": 24.75, "22": 24.75, "23": 24.75, "24": 24.75, "25": 15.75, "26": 15.75, "27": 15.75, "28": 15.75, "29": 15.75, "30": 15.75, "31": 15.75, "32": 15.75, "33": 15.75, "34": 15.75, "35": 15.75, "36": 15.75, "37": 15.75 }, "m": ["F30:G30", "C31:E31", "C36:D36", "C35:E35", "F27:G27", "C32:E32"], "c": [[1, 1, "Sumber Dana", 0], [1, 6, "Kelas : ___________", 0], [3, 1, "No.", 1], [3, 2, "Hari, tanggal", 1], [3, 3, "Sumber", 2], [3, 4, null, 3], [3, 5, null, 3], [3, 6, null, 4], [3, 7, "Jumlah", 5], [4, 1, 22, 6], [4, 2, null, 6], [4, 3, "Kenneth", 7], [4, 4, null, 3], [4, 5, null, 3], [4, 6, null, 4], [4, 7, null, 8], [5, 1, 23, 9], [5, 2, null, 9], [5, 3, "Shallom", 7], [5, 4, null, 3], [5, 5, null, 3], [5, 6, null, 4], [5, 7, null, 8], [6, 1, 24, 9], [6, 2, null, 9], [6, 3, "Stefanus", 7], [6, 4, null, 3], [6, 5, null, 3], [6, 6, null, 4], [6, 7, null, 8], [7, 1, 25, 9], [7, 2, null, 9], [7, 3, "Rachel", 7], [7, 4, null, 3], [7, 5, null, 3], [7, 6, null, 4], [7, 7, null, 8], [8, 1, 26, 9], [8, 2, null, 9], [8, 3, "Venia", 7], [8, 4, null, 3], [8, 5, null, 3], [8, 6, null, 4], [8, 7, null, 8], [9, 1, 27, 9], [9, 2, null, 9], [9, 3, "Violine", 7], [9, 4, null, 3], [9, 5, null, 3], [9, 6, null, 4], [9, 7, null, 8], [10, 1, 28, 9], [10, 2, null, 9], [10, 3, "Zelvin", 7], [10, 4, null, 3], [10, 5, null, 3], [10, 6, null, 4], [10, 7, null, 8], [11, 1, 29, 9], [11, 2, null, 9], [11, 3, null, 7], [11, 4, null, 3], [11, 5, null, 3], [11, 6, null, 4], [11, 7, null, 8], [12, 1, 30, 9], [12, 2, null, 9], [12, 3, "Kas", 7], [12, 4, null, 3], [12, 5, null, 3], [12, 6, null, 4], [12, 7, null, 8], [13, 1, null, 9], [13, 2, null, 9], [13, 3, null, 7], [13, 4, null, 3], [13, 5, null, 3], [13, 6, null, 4], [13, 7, null, 9], [14, 1, null, 9], [14, 2, null, 9], [14, 3, null, 7], [14, 4, null, 3], [14, 5, null, 3], [14, 6, null, 4], [14, 7, null, 9], [15, 1, null, 9], [15, 2, null, 9], [15, 3, null, 7], [15, 4, null, 3], [15, 5, null, 3], [15, 6, null, 4], [15, 7, null, 9], [16, 1, null, 9], [16, 2, null, 9], [16, 3, null, 7], [16, 4, null, 3], [16, 5, null, 3], [16, 6, null, 4], [16, 7, null, 9], [17, 1, null, 9], [17, 2, null, 9], [17, 3, null, 7], [17, 4, null, 3], [17, 5, null, 3], [17, 6, null, 4], [17, 7, null, 9], [18, 1, null, 9], [18, 2, null, 9], [18, 3, null, 7], [18, 4, null, 3], [18, 5, null, 3], [18, 6, null, 4], [18, 7, null, 9], [19, 1, null, 9], [19, 2, null, 9], [19, 3, null, 7], [19, 4, null, 3], [19, 5, null, 3], [19, 6, null, 4], [19, 7, null, 9], [20, 1, null, 9], [20, 2, null, 9], [20, 3, null, 7], [20, 4, null, 3], [20, 5, null, 3], [20, 6, null, 4], [20, 7, null, 9], [21, 1, null, 9], [21, 2, null, 9], [21, 3, null, 7], [21, 4, null, 3], [21, 5, null, 3], [21, 6, null, 4], [21, 7, null, 9], [22, 1, null, 9], [22, 2, null, 9], [22, 3, null, 7], [22, 4, null, 3], [22, 5, null, 3], [22, 6, null, 4], [22, 7, null, 9], [23, 1, null, 9], [23, 2, null, 9], [23, 3, null, 7], [23, 4, null, 3], [23, 5, null, 3], [23, 6, null, 4], [23, 7, null, 9], [24, 1, null, 9], [24, 2, null, 9], [24, 3, null, 7], [24, 4, null, 3], [24, 5, null, 3], [24, 6, null, 4], [24, 7, null, 9], [26, 6, "Bandung, _____________ 2025", 0], [27, 2, "Ketua Kelas,", 0], [27, 6, "Bendahara Kelas,", 10], [30, 2, "_________________", 0], [30, 6, "________________", 10], [31, 3, "Mengetahui", 10], [32, 3, "Wali Kelas,", 10], [35, 3, "___________________", 10], [36, 3, "           Nicolas Dwiatmoko, S.T", 10]], "n": [], "p": { "o": "portrait", "z": 9, "sc": null, "fw": null, "fh": null, "fit": false, "mg": [0.82, 0.46, 0.75, 0.75, 0.0, 0.0] }, "g": false }, "Barang": { "w": { "1": 5.29, "2": 14.14, "3": 19.29, "4": 22.57, "5": 7.14, "6": 5.29, "7": 12.14, "8": 13.14 }, "h": { "3": 32.25, "4": 24.75, "5": 24.75, "6": 24.75, "7": 24.75, "8": 24.75, "9": 24.75, "10": 24.75, "11": 24.75, "12": 24.75, "13": 24.75, "14": 24.75, "15": 24.75, "16": 24.75, "17": 24.75, "18": 24.75, "19": 24.75, "20": 24.75, "21": 24.75, "22": 24.75, "23": 24.75, "24": 24.75, "25": 15.75, "26": 15.75, "27": 15.75, "28": 15.75, "29": 15.75, "30": 15.75, "31": 15.75, "32": 15.75, "33": 15.75, "34": 15.75, "35": 15.75, "36": 15.75 }, "m": ["C31:F31", "G30:H30", "C35:F35", "G27:H27", "C32:F32"], "c": [[1, 1, "Sumber pengadaan bahan habis pakai", 0], [1, 7, "Kelas : XI-3", 0], [3, 1, "No.", 11], [3, 2, "Hari, tanggal", 11], [3, 3, "Sumber", 11], [3, 4, "Nama Barang", 5], [3, 5, "Banyaknya", 12], [3, 6, "Ukuran", 12], [3, 7, "Harga satuan", 5], [3, 8, "Jumlah", 5], [4, 1, 1, 9], [4, 2, null, 9], [4, 3, null, 9], [4, 4, null, 9], [4, 5, null, 9], [4, 6, null, 9], [4, 7, null, 8], [4, 8, null, 8], [5, 1, 2, 9], [5, 2, null, 13], [5, 3, null, 9], [5, 4, null, 9], [5, 5, null, 9], [5, 6, null, 9], [5, 7, null, 8], [5, 8, null, 8], [6, 1, 3, 9], [6, 2, null, 9], [6, 3, null, 9], [6, 4, null, 9], [6, 5, null, 9], [6, 6, null, 9], [6, 7, null, 9], [6, 8, null, 9], [7, 1, 4, 9], [7, 2, null, 9], [7, 3, null, 9], [7, 4, null, 9], [7, 5, null, 9], [7, 6, null, 9], [7, 7, null, 9], [7, 8, null, 9], [8, 1, 5, 9], [8, 2, null, 9], [8, 3, null, 9], [8, 4, null, 9], [8, 5, null, 9], [8, 6, null, 9], [8, 7, null, 9], [8, 8, null, 9], [9, 1, 6, 9], [9, 2, null, 9], [9, 3, null, 9], [9, 4, null, 9], [9, 5, null, 9], [9, 6, null, 9], [9, 7, null, 9], [9, 8, null, 9], [10, 1, 7, 9], [10, 2, null, 9], [10, 3, null, 9], [10, 4, null, 9], [10, 5, null, 9], [10, 6, null, 9], [10, 7, null, 9], [10, 8, null, 9], [11, 1, 8, 9], [11, 2, null, 9], [11, 3, null, 9], [11, 4, null, 9], [11, 5, null, 9], [11, 6, null, 9], [11, 7, null, 9], [11, 8, null, 9], [12, 1, 9, 9], [12, 2, null, 9], [12, 3, null, 9], [12, 4, null, 9], [12, 5, null, 9], [12, 6, null, 9], [12, 7, null, 9], [12, 8, null, 9], [13, 1, 10, 9], [13, 2, null, 9], [13, 3, null, 9], [13, 4, null, 9], [13, 5, null, 9], [13, 6, null, 9], [13, 7, null, 9], [13, 8, null, 9], [14, 1, 11, 9], [14, 2, null, 9], [14, 3, null, 9], [14, 4, null, 9], [14, 5, null, 9], [14, 6, null, 9], [14, 7, null, 9], [14, 8, null, 9], [15, 1, 12, 9], [15, 2, null, 9], [15, 3, null, 9], [15, 4, null, 9], [15, 5, null, 9], [15, 6, null, 9], [15, 7, null, 9], [15, 8, null, 9], [16, 1, 13, 9], [16, 2, null, 9], [16, 3, null, 9], [16, 4, null, 9], [16, 5, null, 9], [16, 6, null, 9], [16, 7, null, 9], [16, 8, null, 9], [17, 1, 14, 9], [17, 2, null, 9], [17, 3, null, 9], [17, 4, null, 9], [17, 5, null, 9], [17, 6, null, 9], [17, 7, null, 9], [17, 8, null, 9], [18, 1, 15, 9], [18, 2, null, 9], [18, 3, null, 9], [18, 4, null, 9], [18, 5, null, 9], [18, 6, null, 9], [18, 7, null, 9], [18, 8, null, 9], [19, 1, 16, 9], [19, 2, null, 9], [19, 3, null, 9], [19, 4, null, 9], [19, 5, null, 9], [19, 6, null, 9], [19, 7, null, 9], [19, 8, null, 9], [20, 1, 17, 9], [20, 2, null, 9], [20, 3, null, 9], [20, 4, null, 9], [20, 5, null, 9], [20, 6, null, 9], [20, 7, null, 9], [20, 8, null, 9], [21, 1, 18, 9], [21, 2, null, 9], [21, 3, null, 9], [21, 4, null, 9], [21, 5, null, 9], [21, 6, null, 9], [21, 7, null, 9], [21, 8, null, 9], [22, 1, 19, 9], [22, 2, null, 9], [22, 3, null, 9], [22, 4, null, 9], [22, 5, null, 9], [22, 6, null, 9], [22, 7, null, 9], [22, 8, null, 9], [23, 1, 20, 9], [23, 2, null, 9], [23, 3, null, 9], [23, 4, null, 9], [23, 5, null, 9], [23, 6, null, 9], [23, 7, null, 9], [23, 8, null, 9], [24, 1, 21, 9], [24, 2, null, 9], [24, 3, null, 9], [24, 4, null, 9], [24, 5, null, 9], [24, 6, null, 9], [24, 7, null, 9], [24, 8, null, 9], [26, 7, "Bandung, _____________ 2025", 0], [27, 2, "Ketua Kelas,", 0], [27, 7, "Bendahara Kelas,", 10], [30, 2, "_________________", 0], [30, 7, "________________", 10], [31, 3, "Mengetahui", 10], [32, 3, "Wali Kelas,", 10], [35, 3, "___________________", 10]], "n": [[3, 6, "======\nID#AAABXCQscjc\nMr_Rusma    (2024-10-21 00:38:18)\nunit\nltr\nkg\ndll"]], "p": { "o": "portrait", "z": 9, "sc": null, "fw": null, "fh": null, "fit": false, "mg": [0.27, 0.12, 0.75, 0.75, 0.0, 0.0] }, "g": false }, "Pengg_Dana": { "w": { "1": 4.71, "2": 20.0, "3": 6.71, "4": 26.14, "5": 6.14, "6": 9.86, "7": 11.14 }, "h": { "5": 19.5, "6": 19.5, "7": 19.5, "8": 19.5, "9": 19.5, "10": 19.5, "11": 19.5, "12": 19.5, "13": 19.5, "14": 19.5, "15": 19.5, "16": 19.5, "17": 19.5, "18": 19.5, "19": 19.5, "20": 19.5, "21": 19.5, "22": 19.5, "23": 19.5, "24": 19.5, "25": 19.5, "26": 19.5, "27": 19.5, "28": 19.5, "29": 19.5, "30": 19.5, "31": 15.75, "32": 15.75, "33": 15.75, "34": 15.75, "35": 15.75, "36": 15.75, "37": 15.75, "38": 15.75, "39": 15.75, "40": 15.75, "41": 15.75, "42": 15.75, "43": 15.75 }, "m": ["E36:G36", "E33:G33", "C37:E37", "C41:E41", "B33:C33", "A3:A4", "B3:B4", "E3:E4", "G3:G4", "B36:C36", "D3:D4", "C38:E38"], "c": [[1, 1, "Penggunaan Dana dan Bahan habis pakai", 0], [1, 5, null, 10], [1, 6, "Kelas : ", 0], [1, 7, "XI-3", 0], [2, 5, null, 10], [3, 1, "No.", 1], [3, 2, "Hari, tanggal", 1], [3, 3, "No.", 14], [3, 4, "Keterangan", 15], [3, 5, "Unit", 1], [3, 6, "Harga", 14], [3, 7, "Jumlah", 1], [4, 1, null, 16], [4, 2, null, 16], [4, 3, "Dok", 17], [4, 4, null, 16], [4, 5, null, 16], [4, 6, "satuan", 17], [4, 7, null, 16], [5, 1, 1, 9], [5, 2, null, 9], [5, 3, null, 9], [5, 4, null, 9], [5, 5, null, 18], [5, 6, null, 8], [5, 7, null, 8], [6, 1, 2, 9], [6, 2, null, 9], [6, 3, null, 9], [6, 4, null, 9], [6, 5, null, 18], [6, 6, null, 8], [6, 7, null, 8], [7, 1, 3, 9], [7, 2, null, 9], [7, 3, null, 9], [7, 4, null, 9], [7, 5, null, 18], [7, 6, null, 8], [7, 7, null, 8], [8, 1, 4, 9], [8, 2, null, 9], [8, 3, null, 9], [8, 4, null, 9], [8, 5, null, 18], [8, 6, null, 8], [8, 7, null, 8], [9, 1, 5, 9], [9, 2, null, 9], [9, 3, null, 9], [9, 4, null, 9], [9, 5, null, 18], [9, 6, null, 8], [9, 7, null, 8], [10, 1, 6, 9], [10, 2, null, 9], [10, 3, null, 9], [10, 4, null, 9], [10, 5, null, 18], [10, 6, null, 8], [10, 7, null, 8], [11, 1, 7, 9], [11, 2, null, 9], [11, 3, null, 9], [11, 4, null, 9], [11, 5, null, 18], [11, 6, null, 8], [11, 7, null, 8], [12, 1, 8, 9], [12, 2, null, 9], [12, 3, null, 9], [12, 4, null, 9], [12, 5, null, 18], [12, 6, null, 8], [12, 7, null, 8], [13, 1, 9, 9], [13, 2, null, 9], [13, 3, null, 9], [13, 4, null, 9], [13, 5, null, 18], [13, 6, null, 8], [13, 7, null, 8], [14, 1, 10, 9], [14, 2, null, 9], [14, 3, null, 9], [14, 4, null, 9], [14, 5, null, 18], [14, 6, null, 8], [14, 7, null, 8], [15, 1, 11, 9], [15, 2, null, 9], [15, 3, null, 9], [15, 4, null, 9], [15, 5, null, 18], [15, 6, null, 8], [15, 7, null, 8], [16, 1, 12, 9], [16, 2, null, 9], [16, 3, null, 9], [16, 4, null, 9], [16, 5, null, 18], [16, 6, null, 8], [16, 7, null, 8], [17, 1, 13, 9], [17, 2, null, 9], [17, 3, null, 9], [17, 4, null, 9], [17, 5, null, 18], [17, 6, null, 8], [17, 7, null, 8], [18, 1, 14, 9], [18, 2, null, 9], [18, 3, null, 9], [18, 4, null, 9], [18, 5, null, 18], [18, 6, null, 8], [18, 7, null, 8], [19, 1, 15, 9], [19, 2, null, 9], [19, 3, null, 9], [19, 4, null, 9], [19, 5, null, 18], [19, 6, null, 8], [19, 7, null, 8], [20, 1, 16, 9], [20, 2, null, 9], [20, 3, null, 9], [20, 4, null, 9], [20, 5, null, 18], [20, 6, null, 8], [20, 7, null, 8], [21, 1, 17, 9], [21, 2, null, 9], [21, 3, null, 9], [21, 4, null, 9], [21, 5, null, 18], [21, 6, null, 8], [21, 7, null, 8], [22, 1, 18, 9], [22, 2, null, 9], [22, 3, null, 9], [22, 4, null, 9], [22, 5, null, 18], [22, 6, null, 8], [22, 7, null, 8], [23, 1, 19, 9], [23, 2, null, 9], [23, 3, null, 9], [23, 4, null, 9], [23, 5, null, 18], [23, 6, null, 8], [23, 7, null, 8], [24, 1, 20, 9], [24, 2, null, 9], [24, 3, null, 9], [24, 4, null, 9], [24, 5, null, 18], [24, 6, null, 8], [24, 7, null, 8], [25, 1, 21, 9], [25, 2, null, 9], [25, 3, null, 9], [25, 4, null, 9], [25, 5, null, 18], [25, 6, null, 8], [25, 7, null, 8], [26, 1, 22, 9], [26, 2, null, 9], [26, 3, null, 9], [26, 4, null, 9], [26, 5, null, 18], [26, 6, null, 8], [26, 7, null, 8], [27, 1, 23, 9], [27, 2, null, 9], [27, 3, null, 9], [27, 4, null, 9], [27, 5, null, 18], [27, 6, null, 8], [27, 7, null, 8], [28, 1, 24, 9], [28, 2, null, 9], [28, 3, null, 9], [28, 4, null, 9], [28, 5, null, 18], [28, 6, null, 8], [28, 7, null, 8], [29, 1, 25, 9], [29, 2, null, 9], [29, 3, null, 9], [29, 4, null, 9], [29, 5, null, 18], [29, 6, null, 8], [29, 7, null, 8], [30, 1, 26, 9], [30, 2, null, 9], [30, 3, null, 9], [30, 4, null, 9], [30, 5, null, 18], [30, 6, null, 8], [30, 7, null, 19], [31, 5, null, 10], [31, 7, "=SUM(G5:G30)", 8], [32, 5, "Bandung, _______________ 2025", 10], [33, 2, "Ketua Kelas,", 10], [33, 5, "Bendahara Kelas,", 10], [34, 5, null, 10], [35, 5, null, 10], [36, 2, "__________________", 10], [36, 5, "__________________", 10], [37, 3, "Mengetahui", 10], [38, 3, "Wali Kelas,", 10], [39, 5, null, 10], [40, 5, null, 10], [41, 3, "___________________", 10]], "n": [], "p": { "o": "portrait", "z": 9, "sc": null, "fw": null, "fh": null, "fit": false, "mg": [0.48, 0.2, 0.75, 0.75, 0.0, 0.0] }, "g": false }, "Copy of Pengg_Dana": { "w": { "1": 4.71, "2": 20.0, "3": 6.71, "4": 26.14, "5": 6.14, "6": 9.14, "7": 15.43 }, "h": { "5": 19.5, "6": 19.5, "7": 19.5, "8": 19.5, "9": 19.5, "10": 19.5, "11": 19.5, "12": 19.5, "13": 19.5, "14": 19.5, "15": 19.5, "16": 19.5, "17": 19.5, "18": 19.5, "19": 19.5, "20": 19.5, "21": 19.5, "22": 19.5, "23": 19.5, "24": 19.5, "25": 19.5, "26": 19.5, "27": 19.5, "28": 19.5, "29": 19.5, "30": 19.5, "31": 19.5, "32": 19.5, "33": 15.75, "34": 15.75, "35": 15.75, "36": 15.75, "37": 15.75, "38": 15.75, "39": 15.75, "40": 15.75, "41": 15.75, "42": 15.75, "43": 15.75 }, "m": ["B38:C38", "B3:B4", "A3:A4", "C39:E39", "C40:E40", "E3:E4", "G3:G4", "D3:D4", "E35:G35", "C43:E43", "B35:C35", "E38:G38"], "c": [[1, 1, "Penggunaan Dana dan Bahan habis pakai", 0], [1, 5, null, 10], [1, 6, "Kelas : ", 0], [1, 7, "XI-3", 0], [2, 5, null, 10], [3, 1, "No.", 1], [3, 2, "Hari, tanggal", 1], [3, 3, "No.", 14], [3, 4, "Keterangan", 15], [3, 5, "Unit", 1], [3, 6, "Harga", 14], [3, 7, "Jumlah", 1], [4, 1, null, 16], [4, 2, null, 16], [4, 3, "Dok", 17], [4, 4, null, 16], [4, 5, null, 16], [4, 6, "satuan", 17], [4, 7, null, 16], [5, 1, 27, 9], [5, 2, null, 9], [5, 3, null, 9], [5, 4, null, 9], [5, 5, null, 9], [5, 6, null, 8], [5, 7, null, 8], [6, 1, 28, 9], [6, 2, null, 9], [6, 3, null, 9], [6, 4, null, 9], [6, 5, null, 9], [6, 6, null, 8], [6, 7, null, 8], [7, 1, null, 9], [7, 2, null, 9], [7, 3, null, 9], [7, 4, null, 9], [7, 5, null, 9], [7, 6, null, 9], [7, 7, null, 9], [8, 1, null, 9], [8, 2, null, 9], [8, 3, null, 9], [8, 4, null, 9], [8, 5, null, 9], [8, 6, null, 9], [8, 7, null, 9], [9, 1, null, 9], [9, 2, null, 9], [9, 3, null, 9], [9, 4, null, 9], [9, 5, null, 9], [9, 6, null, 9], [9, 7, null, 9], [10, 1, null, 9], [10, 2, null, 9], [10, 3, null, 9], [10, 4, null, 9], [10, 5, null, 9], [10, 6, null, 9], [10, 7, null, 9], [11, 1, null, 9], [11, 2, null, 9], [11, 3, null, 9], [11, 4, null, 9], [11, 5, null, 9], [11, 6, null, 9], [11, 7, null, 9], [12, 1, null, 9], [12, 2, null, 9], [12, 3, null, 9], [12, 4, null, 9], [12, 5, null, 9], [12, 6, null, 9], [12, 7, null, 9], [13, 1, null, 9], [13, 2, null, 9], [13, 3, null, 9], [13, 4, null, 9], [13, 5, null, 9], [13, 6, null, 9], [13, 7, null, 9], [14, 1, null, 9], [14, 2, null, 9], [14, 3, null, 9], [14, 4, null, 9], [14, 5, null, 9], [14, 6, null, 9], [14, 7, null, 9], [15, 1, null, 9], [15, 2, null, 9], [15, 3, null, 9], [15, 4, null, 9], [15, 5, null, 9], [15, 6, null, 9], [15, 7, null, 9], [16, 1, null, 9], [16, 2, null, 9], [16, 3, null, 9], [16, 4, null, 9], [16, 5, null, 9], [16, 6, null, 9], [16, 7, null, 9], [17, 1, null, 9], [17, 2, null, 9], [17, 3, null, 9], [17, 4, null, 9], [17, 5, null, 9], [17, 6, null, 9], [17, 7, null, 9], [18, 1, null, 9], [18, 2, null, 9], [18, 3, null, 9], [18, 4, null, 9], [18, 5, null, 9], [18, 6, null, 9], [18, 7, null, 9], [19, 1, null, 9], [19, 2, null, 9], [19, 3, null, 9], [19, 4, null, 9], [19, 5, null, 9], [19, 6, null, 9], [19, 7, null, 9], [20, 1, null, 9], [20, 2, null, 9], [20, 3, null, 9], [20, 4, null, 9], [20, 5, null, 9], [20, 6, null, 9], [20, 7, null, 9], [21, 1, null, 9], [21, 2, null, 9], [21, 3, null, 9], [21, 4, null, 9], [21, 5, null, 9], [21, 6, null, 9], [21, 7, null, 9], [22, 1, null, 9], [22, 2, null, 9], [22, 3, null, 9], [22, 4, null, 9], [22, 5, null, 9], [22, 6, null, 9], [22, 7, null, 9], [23, 1, null, 9], [23, 2, null, 9], [23, 3, null, 9], [23, 4, null, 9], [23, 5, null, 9], [23, 6, null, 9], [23, 7, null, 9], [24, 1, null, 9], [24, 2, null, 9], [24, 3, null, 9], [24, 4, null, 9], [24, 5, null, 9], [24, 6, null, 9], [24, 7, null, 9], [25, 1, null, 9], [25, 2, null, 9], [25, 3, null, 9], [25, 4, null, 9], [25, 5, null, 9], [25, 6, null, 9], [25, 7, null, 9], [26, 1, null, 9], [26, 2, null, 9], [26, 3, null, 9], [26, 4, null, 9], [26, 5, null, 9], [26, 6, null, 9], [26, 7, null, 9], [27, 1, null, 9], [27, 2, null, 9], [27, 3, null, 9], [27, 4, null, 9], [27, 5, null, 9], [27, 6, null, 9], [27, 7, null, 9], [28, 1, null, 9], [28, 2, null, 9], [28, 3, null, 9], [28, 4, null, 9], [28, 5, null, 18], [28, 6, null, 9], [28, 7, null, 9], [29, 1, null, 9], [29, 2, null, 9], [29, 3, null, 9], [29, 4, null, 9], [29, 5, null, 18], [29, 6, null, 9], [29, 7, null, 9], [30, 1, null, 9], [30, 2, null, 9], [30, 3, null, 9], [30, 4, null, 9], [30, 5, null, 18], [30, 6, null, 9], [30, 7, null, 9], [31, 1, null, 9], [31, 2, null, 9], [31, 3, null, 9], [31, 4, null, 9], [31, 5, null, 18], [31, 6, null, 9], [31, 7, null, 9], [32, 1, null, 9], [32, 2, "Jumlah biaya", 9], [32, 3, null, 9], [32, 4, null, 9], [32, 5, null, 18], [32, 6, null, 9], [32, 7, null, 9], [33, 5, null, 10], [34, 5, "Bandung, _______________ 2025", 10], [35, 2, "Ketua Kelas,", 10], [35, 5, "Bendahara Kelas,", 10], [36, 5, null, 10], [37, 5, null, 10], [38, 2, "__________________", 10], [38, 5, "__________________", 10], [39, 3, "Mengetahui", 10], [40, 3, "Wali Kelas,", 10], [41, 5, null, 10], [42, 5, null, 10], [43, 3, "___________________", 10]], "n": [], "p": { "o": "portrait", "z": 9, "sc": null, "fw": null, "fh": null, "fit": false, "mg": [0.48, 0.2, 0.75, 0.75, 0.0, 0.0] }, "g": false }, "Lap_LR": { "w": { "1": 3.29, "2": 29.0, "3": 18.29, "4": 8.29, "5": 22.43, "6": 3.14 }, "h": { "21": 15.75, "22": 15.75, "23": 15.75, "24": 15.75, "25": 15.75, "26": 15.75, "27": 15.75, "28": 15.75, "29": 15.75, "30": 15.75, "31": 15.75, "32": 15.75, "33": 15.75, "34": 15.75, "35": 15.75, "36": 15.75, "37": 15.75, "38": 15.75, "39": 15.75, "40": 15.75, "41": 15.75, "42": 15.75, "43": 15.75, "44": 15.75, "45": 15.75, "46": 15.75, "47": 15.75, "48": 15.75, "49": 15.75, "50": 15.75, "51": 15.75, "52": 15.75, "53": 15.75, "54": 15.75 }, "m": ["A2:E2", "A1:E1", "A3:E3"], "c": [[1, 1, "_________________________ KELAS ________", 10], [2, 1, "LAPORAN LABA RUGI", 10], [3, 1, "PERIODE 23 -24 OKTOBER  2025", 10], [5, 1, "PENDAPATAN :", 0], [6, 1, 1, 0], [6, 2, "Penjualan __________________", 0], [6, 3, "Rp ______________", 0], [7, 1, 2, 0], [7, 2, "Penjualan __________________", 0], [7, 3, "Rp ______________", 0], [8, 1, 3, 0], [8, 2, "Penjualan __________________", 0], [8, 3, "Rp ______________", 0], [9, 1, 4, 0], [9, 2, "Penjualan __________________", 0], [9, 3, "Rp ______________", 0], [10, 1, 5, 0], [10, 2, "Penjualan __________________", 0], [10, 3, "Rp ______________", 0], [11, 1, 6, 0], [11, 2, "Penjualan __________________", 0], [11, 3, "Rp ______________", 0], [12, 1, 7, 0], [12, 2, "Penjualan __________________", 0], [12, 3, "Rp ______________", 0], [13, 1, 8, 0], [13, 2, "Penjualan __________________", 0], [13, 3, "Rp ______________", 0], [14, 1, 9, 0], [14, 2, "Penjualan __________________", 0], [14, 3, "Rp ______________", 0], [15, 1, 10, 0], [15, 2, "Penjualan __________________", 0], [15, 3, "Rp ______________", 0], [15, 4, "+", 0], [17, 1, "JUMLAH PENDAPATAN", 0], [17, 5, "Rp ___________________", 0], [19, 1, "BIAYA-BIAYA :", 0], [20, 1, 1, 0], [20, 2, "Sewa stand", 0], [20, 3, "Rp 150,000", 0], [21, 1, 2, 0], [21, 2, "Biaya dekorasi stand", 0], [21, 3, "Rp ______________", 0], [22, 1, 3, 0], [22, 2, "Biaya usaha", 0], [22, 3, "Rp ______________", 0], [23, 1, 4, 0], [23, 2, "________________________", 0], [23, 3, "Rp ______________", 0], [24, 1, 5, 0], [24, 2, "________________________", 0], [24, 3, "Rp ______________", 0], [25, 1, 6, 0], [25, 2, "Biaya penyusunan laporan", 0], [25, 3, "Rp -", 20], [25, 4, "+", 0], [27, 1, "JUMLAH BIAYA", 0], [27, 5, "Rp ___________________", 20], [27, 6, "-", 0], [29, 1, "LABA / RUGI BERSIH", 0], [29, 5, "Rp ___________________", 21], [31, 1, "Persediaan barang dagangan yang masih ada (tidak terjual):", 0], [33, 1, 1, 0], [33, 2, "________________________", 0], [33, 3, "Rp ______________", 0], [34, 1, 2, 0], [34, 2, "________________________", 0], [34, 3, "Rp ______________", 0], [35, 1, 3, 0], [35, 2, "________________________", 0], [35, 3, "Rp ______________", 0], [36, 1, 4, 0], [36, 2, "________________________", 0], [36, 3, "Rp ______________", 0], [37, 1, 5, 0], [37, 2, "________________________", 0], [37, 3, "Rp ______________", 0], [38, 1, 6, 0], [38, 2, "________________________", 0], [38, 3, "Rp ______________", 20], [38, 5, "+", 0], [40, 1, "JUMLAH", 0], [40, 5, "Rp ___________________", 21], [43, 4, "Bandung, ___    _______________ 2025", 0], [44, 2, "Ketua Kelas,", 0], [44, 4, "Bendahara Kelas,", 0], [47, 2, "________________________", 0], [47, 4, "________________________", 0], [49, 3, "Mengetahui", 0], [50, 3, "Wali Kelas,", 0], [53, 3, "__________________", 0]], "n": [], "p": { "o": "portrait", "z": 9, "sc": null, "fw": null, "fh": null, "fit": false, "mg": [0.7086614173228347, 0.7086614173228347, 0.5511811023622047, 0.35433070866141736, 0.0, 0.0] }, "g": false } }, "jual": { "w": { "1": 4.86, "2": 20, "3": 19.57, "4": 4.57, "5": 11, "6": 11, "7": 11, "8": 3.57, "9": 11, "10": 11, "11": 11 }, "h": { "7": 19.5, "8": 19.5, "9": 19.5, "10": 19.5, "11": 19.5, "12": 19.5, "13": 19.5, "14": 19.5, "15": 19.5, "16": 19.5, "17": 19.5, "18": 19.5, "19": 19.5, "20": 19.5, "21": 19.5, "22": 19.5, "23": 19.5, "24": 19.5, "25": 19.5, "26": 19.5, "27": 19.5, "28": 19.5, "29": 19.5, "30": 19.5, "31": 19.5, "32": 19.5, "33": 15.75, "34": 15.75, "35": 15.75, "36": 15.75, "37": 15.75, "38": 15.75, "39": 15.75, "40": 15.75, "41": 15.75, "42": 15.75, "43": 15.75, "44": 15.75 }, "m": ["A5:A6", "G5:G6", "B38:C38", "D40:G40", "J5:J6", "D39:G39", "G35:J35", "G34:J34", "H5:I5", "G38:J38", "D43:G43", "F5:F6", "D5:D6", "B35:C35", "B5:B6", "C5:C6", "A1:K1", "K5:K6"], "c": [[1, 1, "PENJUALAN BARANG", 22], [3, 1, "Nama Barang : ", 0], [3, 9, "Kelas : XI-3", 0], [5, 1, "No.", 1], [5, 2, "Hari, tanggal", 1], [5, 3, "Keterangan", 1], [5, 4, "Unit", 1], [5, 5, "Harga", 14], [5, 6, "Jumlah", 1], [5, 7, "Penerimaan Tunai", 23], [5, 8, "Kupon", 18], [5, 9, null, 4], [5, 10, "QRIS", 1], [6, 1, null, 16], [6, 2, null, 16], [6, 3, null, 16], [6, 4, null, 16], [6, 5, "satuan", 17], [6, 6, null, 16], [6, 7, null, 16], [6, 8, "lbr", 16], [6, 9, "Nominal", 16], [6, 10, null, 16], [7, 1, 1, 9], [7, 2, null, 9], [7, 3, null, 9], [7, 4, null, 18], [7, 5, null, 8], [7, 6, null, 8], [7, 7, null, 8], [7, 8, null, 18], [7, 9, null, 8], [7, 10, null, 8], [8, 1, 2, 9], [8, 2, null, 9], [8, 3, null, 9], [8, 4, null, 18], [8, 5, null, 8], [8, 6, null, 8], [8, 7, null, 8], [8, 8, null, 18], [8, 9, null, 8], [8, 10, null, 8], [9, 1, 3, 9], [9, 2, null, 9], [9, 3, null, 9], [9, 4, null, 18], [9, 5, null, 8], [9, 6, null, 8], [9, 7, null, 8], [9, 8, null, 18], [9, 9, null, 24], [9, 10, null, 8], [10, 1, 4, 9], [10, 2, null, 9], [10, 3, null, 9], [10, 4, null, 18], [10, 5, null, 8], [10, 6, null, 8], [10, 7, null, 8], [10, 8, null, 18], [10, 9, null, 8], [10, 10, null, 8], [11, 1, 5, 9], [11, 2, null, 9], [11, 3, null, 9], [11, 4, null, 18], [11, 5, null, 8], [11, 6, null, 8], [11, 7, null, 8], [11, 8, null, 18], [11, 9, null, 8], [11, 10, null, 8], [12, 1, 6, 9], [12, 2, null, 9], [12, 3, null, 9], [12, 4, null, 18], [12, 5, null, 8], [12, 6, null, 8], [12, 7, null, 8], [12, 8, null, 18], [12, 9, null, 8], [12, 10, null, 8], [13, 1, 7, 9], [13, 2, null, 9], [13, 3, null, 9], [13, 4, null, 18], [13, 5, null, 8], [13, 6, null, 8], [13, 7, null, 8], [13, 8, null, 18], [13, 9, null, 8], [13, 10, null, 8], [14, 1, 8, 9], [14, 2, null, 9], [14, 3, null, 9], [14, 4, null, 18], [14, 5, null, 8], [14, 6, null, 8], [14, 7, null, 8], [14, 8, null, 18], [14, 9, null, 8], [14, 10, null, 8], [15, 1, 9, 9], [15, 2, null, 9], [15, 3, null, 9], [15, 4, null, 18], [15, 5, null, 8], [15, 6, null, 8], [15, 7, null, 8], [15, 8, null, 18], [15, 9, null, 8], [15, 10, null, 8], [16, 1, 10, 9], [16, 2, null, 9], [16, 3, null, 9], [16, 4, null, 18], [16, 5, null, 8], [16, 6, null, 8], [16, 7, null, 8], [16, 8, null, 18], [16, 9, null, 8], [16, 10, null, 8], [17, 1, 11, 9], [17, 2, null, 9], [17, 3, null, 9], [17, 4, null, 18], [17, 5, null, 8], [17, 6, null, 8], [17, 7, null, 8], [17, 8, null, 18], [17, 9, null, 8], [17, 10, null, 8], [18, 1, 12, 9], [18, 2, null, 9], [18, 3, null, 9], [18, 4, null, 18], [18, 5, null, 8], [18, 6, null, 8], [18, 7, null, 8], [18, 8, null, 18], [18, 9, null, 8], [18, 10, null, 8], [19, 1, 13, 9], [19, 2, null, 9], [19, 3, null, 9], [19, 4, null, 18], [19, 5, null, 8], [19, 6, null, 8], [19, 7, null, 8], [19, 8, null, 18], [19, 9, null, 8], [19, 10, null, 8], [20, 1, 14, 9], [20, 2, null, 9], [20, 3, null, 9], [20, 4, null, 18], [20, 5, null, 8], [20, 6, null, 8], [20, 7, null, 8], [20, 8, null, 18], [20, 9, null, 8], [20, 10, null, 8], [21, 1, 15, 9], [21, 2, null, 9], [21, 3, null, 9], [21, 4, null, 18], [21, 5, null, 8], [21, 6, null, 8], [21, 7, null, 8], [21, 8, null, 18], [21, 9, null, 8], [21, 10, null, 8], [22, 1, 16, 9], [22, 2, null, 9], [22, 3, null, 9], [22, 4, null, 18], [22, 5, null, 8], [22, 6, null, 8], [22, 7, null, 8], [22, 8, null, 18], [22, 9, null, 8], [22, 10, null, 8], [23, 1, 17, 9], [23, 2, null, 9], [23, 3, null, 9], [23, 4, null, 18], [23, 5, null, 8], [23, 6, null, 8], [23, 7, null, 8], [23, 8, null, 18], [23, 9, null, 8], [23, 10, null, 8], [24, 1, 18, 9], [24, 2, null, 9], [24, 3, null, 9], [24, 4, null, 18], [24, 5, null, 8], [24, 6, null, 8], [24, 7, null, 8], [24, 8, null, 18], [24, 9, null, 8], [24, 10, null, 8], [25, 1, 19, 9], [25, 2, null, 9], [25, 3, null, 9], [25, 4, null, 18], [25, 5, null, 8], [25, 6, null, 8], [25, 7, null, 8], [25, 8, null, 18], [25, 9, null, 8], [25, 10, null, 8], [26, 1, 20, 9], [26, 2, null, 9], [26, 3, null, 9], [26, 4, null, 18], [26, 5, null, 8], [26, 6, null, 8], [26, 7, null, 8], [26, 8, null, 18], [26, 9, null, 8], [26, 10, null, 8], [27, 1, 21, 9], [27, 2, null, 9], [27, 3, null, 9], [27, 4, null, 18], [27, 5, null, 8], [27, 6, null, 8], [27, 7, null, 8], [27, 8, null, 18], [27, 9, null, 8], [27, 10, null, 8], [28, 1, 22, 9], [28, 2, null, 9], [28, 3, null, 9], [28, 4, null, 18], [28, 5, null, 8], [28, 6, null, 8], [28, 7, null, 8], [28, 8, null, 18], [28, 9, null, 8], [28, 10, null, 8], [29, 1, 23, 9], [29, 2, null, 9], [29, 3, null, 9], [29, 4, null, 18], [29, 5, null, 8], [29, 6, null, 8], [29, 7, null, 8], [29, 8, null, 18], [29, 9, null, 8], [29, 10, null, 8], [30, 1, 24, 9], [30, 2, null, 9], [30, 3, null, 9], [30, 4, null, 18], [30, 5, null, 8], [30, 6, null, 8], [30, 7, null, 8], [30, 8, null, 18], [30, 9, null, 8], [30, 10, null, 8], [31, 1, 25, 9], [31, 2, null, 9], [31, 3, null, 9], [31, 4, null, 18], [31, 5, null, 8], [31, 6, null, 8], [31, 7, null, 8], [31, 8, null, 18], [31, 9, null, 8], [31, 10, null, 8], [32, 1, 26, 9], [32, 2, null, 9], [32, 3, null, 9], [32, 4, null, 18], [32, 5, null, 8], [32, 6, null, 8], [32, 7, null, 8], [32, 8, null, 18], [32, 9, null, 8], [32, 10, null, 8], [34, 7, "Bandung, ", 10], [35, 2, "Ketua Kelas,", 10], [35, 7, "Bendahara Kelas,", 10], [38, 2, "__________________", 10], [38, 7, "__________________", 10], [39, 4, "Mengetahui", 10], [40, 4, "Wali Kelas,", 10], [43, 4, "___________________", 10], [5, 11, "TOTAL", 1], [6, 11, null, 16], [7, 11, null, 8], [8, 11, null, 8], [9, 11, null, 8], [10, 11, null, 8], [11, 11, null, 8], [12, 11, null, 8], [13, 11, null, 8], [14, 11, null, 8], [15, 11, null, 8], [16, 11, null, 8], [17, 11, null, 8], [18, 11, null, 8], [19, 11, null, 8], [20, 11, null, 8], [21, 11, null, 8], [22, 11, null, 8], [23, 11, null, 8], [24, 11, null, 8], [25, 11, null, 8], [26, 11, null, 8], [27, 11, null, 8], [28, 11, null, 8], [29, 11, null, 8], [30, 11, null, 8], [31, 11, null, 8], [32, 11, null, 8]], "n": [], "p": { "o": "portrait", "z": 9, "sc": null, "fw": null, "fh": null, "fit": false, "mg": [0.7, 0.24, 0.75, 0.5, 0.0, 0.0] }, "g": false }, "s": [{}, { "bd": ["thin", "thin", "thin", "thin"], "h": "center", "v": "center" }, { "bd": ["thin", "", "thin", "thin"], "h": "center", "v": "center" }, { "bd": ["", "", "thin", "thin"] }, { "bd": ["", "thin", "thin", "thin"] }, { "bd": ["thin", "thin", "thin", "thin"], "v": "center" }, { "bd": ["thin", "thin", "", "thin"], "v": "center" }, { "bd": ["thin", "", "thin", "thin"], "v": "center" }, { "bd": ["thin", "thin", "thin", "thin"], "nf": "[$Rp-421]#,##0" }, { "bd": ["thin", "thin", "thin", "thin"] }, { "h": "center" }, { "bd": ["thin", "thin", "thin", "thin"], "v": "center", "w": 1 }, { "bd": ["thin", "thin", "thin", "thin"], "v": "center", "w": 1 }, { "bd": ["thin", "thin", "thin", "thin"], "nf": "d-mmm" }, { "bd": ["thin", "thin", "thin", ""], "h": "center" }, { "bd": ["thin", "thin", "thin", "thin"], "h": "left", "v": "center" }, { "bd": ["thin", "thin", "", "thin"] }, { "bd": ["thin", "thin", "", "thin"], "h": "center" }, { "bd": ["thin", "thin", "thin", "thin"], "h": "center" }, { "bd": ["thin", "thin", "thin", ""], "nf": "[$Rp-421]#,##0" }, { "bd": ["", "", "", "thin"] }, { "bd": ["", "", "", "double"] }, { "sz": 12.0, "h": "center" }, { "bd": ["thin", "thin", "thin", "thin"], "h": "center", "v": "center", "w": 1 }, { "bd": ["thin", "thin", "thin", "thin"], "h": "right", "nf": "[$Rp-421]#,##0" }] };
+
+    const STORAGE_KEY = 'kasir_bazaar_v2';
+    const RP_FORMAT = '[$Rp-421]#,##0';
+    const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    const SEED_PRODUCTS = [
+      { id: 1, name: 'Milkshake', cat: 'Minuman', price: 0 },
+      { id: 2, name: 'Makaroni', cat: 'Makanan', price: 0 },
+      { id: 3, name: 'Cilok', cat: 'Makanan', price: 0 },
+      { id: 4, name: 'Pig Mie', cat: 'Makanan', price: 0 },
+      { id: 5, name: 'Es Melon', cat: 'Minuman', price: 0 },
+      { id: 6, name: 'Tahu Bulat & Sotong', cat: 'Makanan', price: 0 },
+    ];
+
+    function dateKey(d) {
+      const dt = new Date(d);
+      return [
+        dt.getFullYear(),
+        String(dt.getMonth() + 1).padStart(2, '0'),
+        String(dt.getDate()).padStart(2, '0'),
+      ].join('-');
+    }
+
+    function loadStorage(key) {
+      try { return JSON.parse(localStorage.getItem(key)); }
+      catch { return null; }
+    }
+
+    function applyStyle(cell, styleDef) {
+      if (styleDef.fn || styleDef.sz || styleDef.b || styleDef.i || styleDef.u || styleDef.fc) {
+        cell.font = {
+          name: styleDef.fn || 'Calibri',
+          size: styleDef.sz || 11,
+          bold: !!styleDef.b,
+          italic: !!styleDef.i,
+          underline: !!styleDef.u,
+          ...(styleDef.fc ? { color: { argb: styleDef.fc } } : {}),
+        };
+      }
+      if (styleDef.bd) {
+        const border = {};
+        ['left', 'right', 'top', 'bottom'].forEach((side, i) => {
+          if (styleDef.bd[i]) border[side] = { style: styleDef.bd[i] };
+        });
+        cell.border = border;
+      }
+      if (styleDef.bg) {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: styleDef.bg } };
+      }
+      if (styleDef.h || styleDef.v || styleDef.w) {
+        cell.alignment = { horizontal: styleDef.h, vertical: styleDef.v, wrapText: !!styleDef.w };
+      }
+      if (styleDef.nf) {
+        cell.numFmt = styleDef.nf;
+      }
+    }
+
+    function buildSheet(workbook, sheetSpec, sheetName, valueFixer) {
+      const pg = sheetSpec.p;
+      const ws = workbook.addWorksheet(sheetName, {
+        views: [{ showGridLines: sheetSpec.g }],
+        pageSetup: {
+          paperSize: pg.z || 9,
+          orientation: pg.o || 'portrait',
+          margins: {
+            left: pg.mg[0], right: pg.mg[1],
+            top: pg.mg[2], bottom: pg.mg[3],
+            header: pg.mg[4], footer: pg.mg[5],
+          },
+        },
+      });
+
+      for (const [col, width] of Object.entries(sheetSpec.w)) {
+        ws.getColumn(+col).width = width;
+      }
+      for (const [row, height] of Object.entries(sheetSpec.h)) {
+        ws.getRow(+row).height = height;
+      }
+      sheetSpec.m.forEach(range => ws.mergeCells(range));
+
+      sheetSpec.c.forEach(([row, col, value, styleIdx]) => {
+        const cell = ws.getCell(row, col);
+        if (value !== null) {
+          cell.value = (typeof value === 'string' && value[0] === '=')
+            ? { formula: value.slice(1), result: 0 }
+            : valueFixer(row, col, value);
+        }
+        if (styleIdx) applyStyle(cell, SPEC.s[styleIdx]);
+      });
+
+      sheetSpec.n.forEach(([row, col, text]) => {
+        ws.getCell(row, col).note = text;
+      });
+
+      return ws;
+    }
+
+    const { createApp, ref, reactive, computed, watch, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const tabs = [
+          { id: 'k', label: 'Kasir' },
+          { id: 'p', label: 'Produk' },
+          { id: 'l', label: 'Laporan' },
+        ];
+        const activeTab = ref('k');
+
+        const categories = [
+          { value: '', label: 'Semua' },
+          { value: 'Makanan', label: 'Makanan' },
+          { value: 'Minuman', label: 'Minuman' },
+        ];
+        const filterCat = ref('');
+
+        let saved = loadStorage(STORAGE_KEY);
+        const legacy = saved ? null : loadStorage('kasir_bazaar_v1');
+        saved = saved || {
+          products: SEED_PRODUCTS,
+          sales: (legacy && legacy.sales) || [],
+          set: (legacy && legacy.set) || { kelas: 'XI-3', kupon: 5000, qris: '' },
+          pid: 20,
+        };
+
+        const state = reactive(saved);
+
+        function save() {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          } catch {
+            showToast('Gagal menyimpan ke browser');
+          }
+        }
+
+        const cart = reactive({});
+
+        const filteredProducts = computed(() =>
+          state.products.filter(p => !filterCat.value || p.cat === filterCat.value)
+        );
+
+        const cartItems = computed(() =>
+          Object.keys(cart).map(id => {
+            const p = state.products.find(x => x.id == id);
+            return p ? { ...p, qty: cart[id] } : null;
+          }).filter(Boolean)
+        );
+
+        const cartTotal = computed(() =>
+          Object.keys(cart).reduce((sum, id) => {
+            const p = state.products.find(x => x.id == id);
+            return sum + (p ? p.price * cart[id] : 0);
+          }, 0)
+        );
+
+        function addToCart(id) {
+          const p = state.products.find(x => x.id == id);
+          if (!p || !p.price) return showToast('Isi harga produk dulu di tab Produk');
+          cart[id] = (cart[id] || 0) + 1;
+        }
+
+        function decFromCart(id) {
+          if (--cart[id] <= 0) delete cart[id];
+        }
+
+        function clearCart() {
+          Object.keys(cart).forEach(k => delete cart[k]);
+        }
+
+        const showPayModal = ref(false);
+        const payMethod = ref('CASH');
+        const cashReceived = ref(0);
+        const kuponCount = ref(1);
+
+        function openPayment() {
+          payMethod.value = 'CASH';
+          cashReceived.value = 0;
+          kuponCount.value = Math.ceil(cartTotal.value / state.set.kupon);
+          showPayModal.value = true;
+        }
+
+        const quickAmounts = computed(() => {
+          const t = cartTotal.value;
+          const vals = [5000, 10000, 20000, 50000, 100000].map(u => Math.ceil(t / u) * u);
+          return [...new Set([t, ...vals])].slice(0, 4);
+        });
+
+        const kuponInfo = computed(() => {
+          const val = (kuponCount.value || 0) * state.set.kupon;
+          const t = cartTotal.value;
+          if (val > t) return `Nilai kupon ${formatRp(val)} (lebih ${formatRp(val - t)}, tanpa kembalian)`;
+          if (val < t) return `Nilai kupon ${formatRp(val)} (kurang ${formatRp(t - val)})`;
+          return `Nilai kupon ${formatRp(val)}`;
+        });
+
+        const canConfirmPayment = computed(() => {
+          const t = cartTotal.value;
+          if (payMethod.value === 'CASH') return (cashReceived.value || 0) >= t;
+          if (payMethod.value === 'KUPON') return (kuponCount.value || 0) * state.set.kupon >= t;
+          return true;
+        });
+
+        function confirmPayment() {
+          const t = cartTotal.value;
+          const today = dateKey(new Date());
+          const todaySales = state.sales.filter(s => dateKey(s.ts) === today);
+          const no = todaySales.reduce((max, s) => Math.max(max, s.no), 0) + 1;
+
+          const sale = {
+            id: Date.now(),
+            no,
+            ts: new Date().toISOString(),
+            method: payMethod.value,
+            total: t,
+            kv: state.set.kupon,
+            items: Object.keys(cart).map(id => {
+              const p = state.products.find(x => x.id == id);
+              return { name: p.name, qty: cart[id], price: p.price };
+            }),
+          };
+
+          if (payMethod.value === 'CASH') sale.paid = cashReceived.value;
+          if (payMethod.value === 'KUPON') sale.kupon = kuponCount.value;
+
+          state.sales.push(sale);
+          save();
+          clearCart();
+          showPayModal.value = false;
+
+          let msg = `TRX-${pad(no)} tersimpan`;
+          if (payMethod.value === 'CASH') msg += ` · kembalian ${formatRp(sale.paid - t)}`;
+          showToast(msg);
+        }
+
+        const newProduct = reactive({ name: '', cat: 'Makanan', price: '' });
+
+        function addProduct() {
+          const name = newProduct.name.trim();
+          const price = +newProduct.price;
+          if (!name || !(price > 0)) return showToast('Isi nama dan harga produk');
+          state.products.push({ id: state.pid++, name, cat: newProduct.cat, price });
+          save();
+          newProduct.name = '';
+          newProduct.price = '';
+        }
+
+        function updateProductField(id, field, value) {
+          const p = state.products.find(x => x.id == id);
+          if (!p) return;
+          if (field === 'name' && value.trim()) p.name = value.trim();
+          if (field === 'price' && +value > 0) p.price = +value;
+          save();
+        }
+
+        const armedAction = ref(null);
+        let armTimer = null;
+
+        function setArmed(key) {
+          armedAction.value = key;
+          clearTimeout(armTimer);
+          armTimer = setTimeout(() => { armedAction.value = null; }, 3000);
+        }
+
+        function deleteProduct(id) {
+          const key = 'p' + id;
+          if (armedAction.value !== key) return setArmed(key);
+          state.products = state.products.filter(p => p.id != id);
+          delete cart[id];
+          armedAction.value = null;
+          save();
+        }
+
+        function voidSale(id) {
+          const key = 'v' + id;
+          if (armedAction.value !== key) return setArmed(key);
+          state.sales = state.sales.filter(s => s.id != id);
+          armedAction.value = null;
+          save();
+          showToast('Transaksi dibatalkan');
+        }
+
+        const reportDate = ref(dateKey(new Date()));
+
+        const daySalesData = computed(() =>
+          state.sales
+            .filter(s => dateKey(s.ts) === reportDate.value)
+            .sort((a, b) => (a.ts < b.ts ? -1 : 1))
+        );
+
+        const daySalesReversed = computed(() => [...daySalesData.value].reverse());
+
+        const reportSummary = computed(() => {
+          const ss = daySalesData.value;
+          const byMethod = {};
+          for (const m of ['CASH', 'QRIS', 'KUPON']) {
+            const filtered = ss.filter(s => s.method === m);
+            byMethod[m] = {
+              total: filtered.reduce((sum, s) => sum + s.total, 0),
+              count: filtered.length,
+            };
+          }
+          return {
+            total: ss.reduce((sum, s) => sum + s.total, 0),
+            count: ss.length,
+            byMethod,
+          };
+        });
+
+        function updateSetting(key, value) {
+          state.set[key] = value;
+          save();
+        }
+
+        function updateKupon(value) {
+          if (+value > 0) {
+            state.set.kupon = +value;
+            save();
+          }
+        }
+
+        function handleQrisUpload(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, 700 / Math.max(img.width, img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            state.set.qris = canvas.toDataURL('image/png');
+            save();
+            showToast('QRIS tersimpan');
+          };
+          img.src = URL.createObjectURL(file);
+        }
+
+        const toastMsg = ref('');
+        let toastTimer = null;
+
+        function showToast(msg) {
+          toastMsg.value = msg;
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => { toastMsg.value = ''; }, 2800);
+        }
+
+        function formatRp(n) {
+          return 'Rp' + Math.round(n).toLocaleString('id-ID');
+        }
+
+        function pad(n) {
+          return String(n).padStart(3, '0');
+        }
+
+        function formatTime(ts) {
+          return new Date(ts).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function exportExcel() {
+          const key = reportDate.value;
+          const ss = daySalesData.value;
+
+          if (!ss.length) return showToast('Tidak ada transaksi pada tanggal ini');
+          if (!window.ExcelJS) return showToast('Library Excel belum termuat, cek koneksi internet');
+
+          let blob;
+          try {
+            const d = new Date(key + 'T00:00:00');
+            const tanggalPanjang = `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`;
+            const tanggalLengkap = `${HARI[d.getDay()]}, ${tanggalPanjang}`;
+            const tanggalSingkat = `${HARI[d.getDay()]}, ${d.getDate()} ${BULAN[d.getMonth()].slice(0, 3)} ${d.getFullYear()}`;
+            const kelas = state.set.kelas;
+            const PER_PAGE = 26;
+            const noBorder = { nb: 1 };
+            const allBorders = {
+              top: { style: 'thin' }, left: { style: 'thin' },
+              bottom: { style: 'thin' }, right: { style: 'thin' },
+            };
+
+            function putCell(ws, row, col, value, opts = {}) {
+              const cell = ws.getCell(row, col);
+              cell.value = value;
+              if (!opts.nb) cell.border = allBorders;
+              if (opts.f) cell.numFmt = opts.f;
+              if (opts.c) cell.alignment = { horizontal: 'center' };
+              return cell;
+            }
+
+            function quoteSheetName(name) {
+              return "'" + name.replace(/'/g, "''") + "'";
+            }
+
+            function fixValue(row, col, value) {
+              if (row <= 3 && typeof value === 'string') {
+                if (value === 'XI-3') return kelas;
+                if (/^Kelas\s*:\s*(XI-3|_+)\s*$/.test(value)) return 'Kelas : ' + kelas;
+              }
+              return value;
+            }
+
+            const wb = new ExcelJS.Workbook();
+
+            SPEC.order.forEach(name => buildSheet(wb, SPEC.sheets[name], name, fixValue));
+
+            const salesByProduct = {};
+            const pagesByProduct = {};
+
+            ss.forEach(sale => {
+              sale.items.forEach(item => {
+                if (!salesByProduct[item.name]) salesByProduct[item.name] = [];
+                salesByProduct[item.name].push({ sale, item });
+              });
+            });
+
+            const productNames = [...new Set([
+              ...state.products.map(p => p.name),
+              ...Object.keys(salesByProduct),
+            ])];
+
+            productNames.forEach(productName => {
+              const entries = salesByProduct[productName] || [];
+              const pageCount = Math.max(1, Math.ceil(entries.length / PER_PAGE));
+              const pages = [];
+              pagesByProduct[productName] = pages;
+
+              for (let pageIdx = 0; pageIdx < pageCount; pageIdx++) {
+                const baseName = ('Jual Barang ' + productName).replace(/[[\]:*?/\\]/g, '');
+                let sheetName = pageIdx
+                  ? baseName.slice(0, 28) + ' ' + (pageIdx + 1)
+                  : baseName.slice(0, 31);
+                for (let i = 2; wb.getWorksheet(sheetName); i++) {
+                  sheetName = sheetName.slice(0, 28) + '~' + i;
+                }
+
+                const ws = buildSheet(wb, SPEC.jual, sheetName, fixValue);
+                pages.push(ws);
+
+                ws.getCell('A3').value = 'Nama Barang : ' + productName;
+                ws.getCell('G34').value = 'Bandung, ' + tanggalPanjang;
+
+                for (let i = 0; i < PER_PAGE; i++) {
+                  const row = 7 + i;
+                  const entryIdx = pageIdx * PER_PAGE + i;
+                  ws.getCell(row, 1).value = entryIdx + 1;
+
+                  const entry = entries[entryIdx];
+                  if (!entry) continue;
+
+                  const { sale, item } = entry;
+                  const subtotal = item.qty * item.price;
+                  const kuponVal = sale.kv || state.set.kupon;
+                  const payCol = sale.method === 'CASH' ? 7 : sale.method === 'KUPON' ? 9 : 10;
+
+                  ws.getCell(row, 2).value = tanggalSingkat;
+                  ws.getCell(row, 3).value = 'TRX-' + pad(sale.no);
+                  ws.getCell(row, 4).value = item.qty;
+                  ws.getCell(row, 5).value = item.price;
+                  ws.getCell(row, 6).value = { formula: `D${row}*E${row}`, result: subtotal };
+                  ws.getCell(row, payCol).value = { formula: `F${row}`, result: subtotal };
+
+                  if (sale.method === 'KUPON') {
+                    ws.getCell(row, 8).value = {
+                      formula: `ROUND(I${row}/${kuponVal},2)`,
+                      result: Math.round(subtotal / kuponVal * 100) / 100,
+                    };
+                  }
+
+                  ws.getCell(row, 11).value = {
+                    formula: `G${row}+I${row}+J${row}`,
+                    result: subtotal,
+                  };
+                }
+              }
+            });
+
+            const grandTotal = ss.reduce((sum, s) => sum + s.total, 0);
+
+            const allSaleSheets = Object.values(pagesByProduct).flat();
+            const lrSheet = buildSheet(wb, SPEC.sheets.Lap_LR, 'Lap_LR', fixValue);
+
+            function sumFormula(name) {
+              return 'SUM(' + pagesByProduct[name].map(w =>
+                quoteSheetName(w.name) + '!K7:K32'
+              ).join(',') + ')';
+            }
+
+            function productTotal(name) {
+              return (salesByProduct[name] || []).reduce(
+                (sum, e) => sum + e.item.qty * e.item.price, 0
+              );
+            }
+
+            productNames.slice(0, 10).forEach((name, i) => {
+              const row = 6 + i;
+              const isLast = (i === 9 && productNames.length > 10);
+              const group = isLast ? productNames.slice(9) : [name];
+
+              lrSheet.getCell(row, 2).value = isLast ? 'Penjualan lainnya' : 'Penjualan ' + name;
+
+              const cell = lrSheet.getCell(row, 3);
+              cell.value = {
+                formula: group.map(sumFormula).join('+'),
+                result: group.reduce((sum, n) => sum + productTotal(n), 0),
+              };
+              cell.numFmt = RP_FORMAT;
+            });
+
+            const totalCell = lrSheet.getCell('E17');
+            totalCell.value = { formula: 'SUM(C6:C15)', result: grandTotal };
+            totalCell.numFmt = RP_FORMAT;
+
+            lrSheet.getCell('A1').value = '_________________________ KELAS ' + kelas;
+            lrSheet.getCell('A3').value = 'PERIODE ' + tanggalPanjang.toUpperCase();
+            lrSheet.getCell('D43').value = 'Bandung, ' + tanggalPanjang;
+
+            const allSheetNames = allSaleSheets.map(w => w.name);
+
+            function sumColumn(col) {
+              return allSheetNames.map(n => `SUM(${quoteSheetName(n)}!${col}7:${col}32)`).join('+');
+            }
+
+            const rekapSheet = wb.addWorksheet('Rekap Pembayaran');
+            [5, 26, 16, 18].forEach((w, i) => rekapSheet.getColumn(i + 1).width = w);
+
+            putCell(rekapSheet, 1, 1, 'Rekap Penerimaan - ' + tanggalLengkap, noBorder);
+            putCell(rekapSheet, 1, 4, 'Kelas : ' + kelas, noBorder);
+
+            ['No.', 'Metode pembayaran', 'Jml transaksi', 'Jumlah'].forEach((h, i) =>
+              putCell(rekapSheet, 3, i + 1, h, { c: 1 })
+            );
+
+            [['CASH', 'G'], ['QRIS', 'J'], ['KUPON', 'I']].forEach(([method, col], i) => {
+              const filtered = ss.filter(s => s.method === method);
+              const row = 4 + i;
+              putCell(rekapSheet, row, 1, i + 1);
+              putCell(rekapSheet, row, 2, method);
+              putCell(rekapSheet, row, 3, filtered.length, { c: 1 });
+              putCell(rekapSheet, row, 4, {
+                formula: sumColumn(col),
+                result: filtered.reduce((sum, s) => sum + s.total, 0),
+              }, { f: RP_FORMAT });
+            });
+
+            putCell(rekapSheet, 7, 1, '');
+            putCell(rekapSheet, 7, 2, 'Total');
+            putCell(rekapSheet, 7, 3, { formula: 'SUM(C4:C6)', result: ss.length }, { c: 1 });
+            putCell(rekapSheet, 7, 4, { formula: 'SUM(D4:D6)', result: grandTotal }, { f: RP_FORMAT });
+            putCell(rekapSheet, 8, 2, 'Kupon diterima (lembar)', noBorder);
+            putCell(rekapSheet, 8, 3, ss.reduce((sum, s) => sum + (s.kupon || 0), 0), { nb: 1, c: 1 });
+
+            blob = new Blob(
+              [await wb.xlsx.writeBuffer()],
+              { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+            );
+          } catch (err) {
+            console.error(err);
+            return showToast('Gagal menyusun Excel: ' + (err && err.message || err));
+          }
+
+          const filename = `Penjualan_${key}.xlsx`;
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = filename;
+          a.click();
+        }
+
+        return {
+          tabs,
+          activeTab,
+          categories,
+          filterCat,
+          state,
+
+          cart,
+          filteredProducts,
+          cartItems,
+          cartTotal,
+          addToCart,
+          decFromCart,
+          clearCart,
+
+          showPayModal,
+          payMethod,
+          cashReceived,
+          kuponCount,
+          openPayment,
+          quickAmounts,
+          kuponInfo,
+          canConfirmPayment,
+          confirmPayment,
+
+          newProduct,
+          addProduct,
+          updateProductField,
+          deleteProduct,
+          armedAction,
+          voidSale,
+
+          reportDate,
+          daySalesData,
+          daySalesReversed,
+          reportSummary,
+
+          updateSetting,
+          updateKupon,
+          handleQrisUpload,
+          toastMsg,
+          exportExcel,
+          formatRp,
+          pad,
+          formatTime,
+        };
+      },
+    }).mount('#app');
+  </script>
+</body>
+
+</html>
